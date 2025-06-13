@@ -1,4 +1,20 @@
 .main {
-	--bg-color: #ffffff;
-	background-color: var(--bg-color, #ffffff);
+	
+  background-color: var(--bg-color);
+  color:            var(--font-color);
+  font-family:      var(--font-family);
+  font-size:        var(--font-size);
+
+  transition:
+    background-color 0.5s ease,
+    color            0.5s ease,
+    font-size        0.5s ease;
+
+  overflow-x: hidden;
+}
+
+.main * {
+  transition:
+    color     0.5s ease,
+    font-size 0.5s ease;
 }
