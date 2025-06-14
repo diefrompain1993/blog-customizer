@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useRef, useEffect, useState } from 'react'
 import clsx from 'clsx'
 
 import { ArrowButton } from 'src/ui/arrow-button'
@@ -15,39 +15,41 @@ import {
   fontColors,
   backgroundColors,
   contentWidthArr,
+  defaultArticleState,
 } from 'src/constants/articleProps'
 
 import styles from './ArticleParamsForm.module.scss'
-import pageStyles from 'src/styles/index.module.scss'
 
 const PANEL_WIDTH = 616
 const ARROW_SIZE  = 48
 
 type Props = {
-  isOpen: boolean
-  formState: ArticleStateType
-  onChange: (s: ArticleStateType) => void
-  onApply: () => void
-  onReset: () => void
+  isMenuOpen: boolean
+  initialState: ArticleStateType
   onToggle: () => void
+  onApply: (newState: ArticleStateType) => void
+  onReset: () => void
 }
 
 export const ArticleParamsForm: React.FC<Props> = ({
-  isOpen,
-  formState,
-  onChange,
+  isMenuOpen,
+  initialState,
+  onToggle,
   onApply,
   onReset,
-  onToggle,
 }) => {
+  const [formState, setFormState] = useState<ArticleStateType>(initialState)
   const panelRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
+    if (isMenuOpen) setFormState(initialState)
+  }, [isMenuOpen, initialState])
+
+  useEffect(() => {
+    if (!isMenuOpen) return
+    const handler = (e: MouseEvent) => {
       const t = e.target as HTMLElement
       if (
-        isOpen &&
-        t.closest(`.${pageStyles.main}`) &&
         panelRef.current &&
         !panelRef.current.contains(t) &&
         !t.closest(`.${styles.arrowWrapper}`)
@@ -55,13 +57,23 @@ export const ArticleParamsForm: React.FC<Props> = ({
         onToggle()
       }
     }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [isOpen, onToggle])
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [isMenuOpen, onToggle])
 
-  const arrowLeft = isOpen
+  const arrowLeft = isMenuOpen
     ? PANEL_WIDTH - ARROW_SIZE / 2
     : -ARROW_SIZE / 2
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    onApply(formState)
+  }
+
+  const handleReset = () => {
+    setFormState(defaultArticleState)
+    onReset()
+  }
 
   return (
     <>
@@ -69,12 +81,12 @@ export const ArticleParamsForm: React.FC<Props> = ({
         className={styles.arrowWrapper}
         style={{ left: `${arrowLeft}px` }}
       >
-        <ArrowButton isOpen={isOpen} onClick={onToggle} />
+        <ArrowButton isOpen={isMenuOpen} onClick={onToggle} />
       </div>
 
       <aside
         ref={panelRef}
-        className={clsx(styles.container, isOpen && styles.open)}
+        className={clsx(styles.container, isMenuOpen && styles.open)}
       >
         <div className={styles.header}>
           <Text as="h2" size={31} weight={800} uppercase>
@@ -82,20 +94,14 @@ export const ArticleParamsForm: React.FC<Props> = ({
           </Text>
         </div>
 
-        <form
-          className={styles.form}
-          onSubmit={e => {
-            e.preventDefault()
-            onApply()
-          }}
-        >
+        <form className={styles.form} onSubmit={handleSubmit}>
           <div className={styles.field}>
             <Select
               title="Шрифт"
               selected={formState.fontFamilyOption}
               options={fontFamilyOptions}
               onChange={opt =>
-                onChange({ ...formState, fontFamilyOption: opt })
+                setFormState(prev => ({ ...prev, fontFamilyOption: opt }))
               }
             />
           </div>
@@ -107,7 +113,7 @@ export const ArticleParamsForm: React.FC<Props> = ({
               options={fontSizeOptions}
               selected={formState.fontSizeOption}
               onChange={opt =>
-                onChange({ ...formState, fontSizeOption: opt })
+                setFormState(prev => ({ ...prev, fontSizeOption: opt }))
               }
             />
           </div>
@@ -118,7 +124,7 @@ export const ArticleParamsForm: React.FC<Props> = ({
               selected={formState.fontColor}
               options={fontColors}
               onChange={opt =>
-                onChange({ ...formState, fontColor: opt })
+                setFormState(prev => ({ ...prev, fontColor: opt }))
               }
             />
           </div>
@@ -133,7 +139,7 @@ export const ArticleParamsForm: React.FC<Props> = ({
               selected={formState.backgroundColor}
               options={backgroundColors}
               onChange={opt =>
-                onChange({ ...formState, backgroundColor: opt })
+                setFormState(prev => ({ ...prev, backgroundColor: opt }))
               }
             />
           </div>
@@ -144,7 +150,7 @@ export const ArticleParamsForm: React.FC<Props> = ({
               selected={formState.contentWidth}
               options={contentWidthArr}
               onChange={opt =>
-                onChange({ ...formState, contentWidth: opt })
+                setFormState(prev => ({ ...prev, contentWidth: opt }))
               }
             />
           </div>
@@ -153,9 +159,8 @@ export const ArticleParamsForm: React.FC<Props> = ({
             <Button
               title="Сбросить"
               type="clear"
-              onClick={() => {
-                onReset()
-              }}
+              htmlType="button"
+              onClick={handleReset}
             />
             <Button
               title="Применить"

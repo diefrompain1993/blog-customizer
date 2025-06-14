@@ -1,13 +1,12 @@
 import React, { useState, CSSProperties } from 'react'
 import stylesIndex from './styles/index.module.scss'
 import { Article } from './components/article/Article'
-import { ArticleParamsForm } from './components/article-params-form'
+import { ArticleParamsForm } from './components/article-params-form/ArticleParamsForm'
 import { defaultArticleState, type ArticleStateType } from './constants/articleProps'
 
 export const App: React.FC = () => {
   const [articleState, setArticleState] = useState<ArticleStateType>(defaultArticleState)
-  const [formState, setFormState] = useState<ArticleStateType>(defaultArticleState)
-  const [isOpen, setIsOpen] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   const isWide = articleState.contentWidth.className === 'width-wide'
 
@@ -25,15 +24,15 @@ export const App: React.FC = () => {
       }
     >
       <ArticleParamsForm
-        isOpen={isOpen}
-        formState={formState}
-        onChange={setFormState}
-        onApply={() => setArticleState(formState)}
+        isMenuOpen={isMenuOpen}
+        initialState={articleState}
+        onToggle={() => setIsMenuOpen(open => !open)}
+        onApply={newState => {
+          setArticleState(newState)
+        }}
         onReset={() => {
-          setFormState(defaultArticleState)
           setArticleState(defaultArticleState)
         }}
-        onToggle={() => setIsOpen(o => !o)}
       />
 
       <Article isWide={isWide} />
