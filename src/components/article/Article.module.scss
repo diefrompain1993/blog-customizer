@@ -1,20 +1,42 @@
 .article {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	row-gap: 24px;
-	max-width: var(--container-width, auto);
-	margin: 0 auto;
-	padding: 72px 0 144px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  row-gap: 24px;
+  max-width: var(--container-width, auto);
+  margin: 0 auto;
+  padding: 72px 0 144px;
+  overflow-x: visible;
 }
 
 .titleDescription {
-	max-width: 550px;
+  max-width: 550px;
+  text-align: center;
 }
 
-.image {
-	width: 100%;
-	height: auto;
-	margin-top: 26px;
+.fullBleed {
+  position: relative;
+  width: calc(100vw + 60px);
+  margin-left: calc((100% - 100vw) / 2 - 2px);
+  margin-top: 26px;
+  overflow: hidden;
+}
+
+.fullBleed .image {
+  display: block;
+  min-width: 100%;
+  height: auto;
+}
+
+.imgWrapper {
+  width: 100%;
+  max-width: var(--container-width);
+  margin: 26px auto 0;
+  overflow: hidden;
+}
+
+.imgWrapper .image {
+  display: block;
+  width: 100%;
+  height: auto;
 }
